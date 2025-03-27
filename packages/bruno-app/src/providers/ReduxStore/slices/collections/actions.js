@@ -50,6 +50,7 @@ import { sendCollectionOauth2Request as _sendCollectionOauth2Request } from 'uti
 import { getGlobalEnvironmentVariables } from 'utils/collections/index';
 import { findCollectionByPathname, findEnvironmentInCollectionByName } from 'utils/collections/index';
 import { sanitizeName } from 'utils/common/regex';
+import { safeParseJSON, safeStringifyJSON } from 'utils/common/index';
 
 export const renameCollection = (newName, collectionUid) => (dispatch, getState) => {
   const state = getState();
@@ -1281,7 +1282,7 @@ export const fetchOauth2Credentials = (payload) => async (dispatch, getState) =>
             url,
             collectionUid,
             credentialsId,
-            debugInfo,
+            debugInfo: safeParseJSON(safeStringifyJSON(debugInfo)),
             folderUid: folderUid || null,
             itemUid: !folderUid ? itemUid : null
           })
@@ -1293,7 +1294,7 @@ export const fetchOauth2Credentials = (payload) => async (dispatch, getState) =>
 };
 
 export const refreshOauth2Credentials = (payload) => async (dispatch, getState) => {
-  const { request, collection, folderUid, itemId } = payload;
+  const { request, collection, folderUid, itemUid } = payload;
   return new Promise((resolve, reject) => {
     window.ipcRenderer
       .invoke('renderer:refresh-oauth2-credentials', { request, collection })
@@ -1304,9 +1305,9 @@ export const refreshOauth2Credentials = (payload) => async (dispatch, getState) 
             url,
             collectionUid,
             credentialsId,
-            debugInfo,
+            debugInfo: safeParseJSON(safeStringifyJSON(debugInfo)),
             folderUid: folderUid || null,
-            itemId: !folderUid ? itemId : null
+            itemUid: !folderUid ? itemUid : null
           })
         );
         resolve(credentials);
